@@ -35,6 +35,27 @@ public sealed class SystemDiagnosticsService
         return (0, 0);
     }
 
+    public double GetCpuUsagePercent()
+    {
+        try
+        {
+            using var searcher = new ManagementObjectSearcher("SELECT LoadPercentage FROM Win32_Processor");
+            var values = new List<int>();
+            foreach (ManagementObject item in searcher.Get())
+            {
+                try
+                {
+                    if (item["LoadPercentage"] is not null &&
+                        int.TryParse(item["LoadPercentage"].ToString(), out int load))
+                        values.Add(Math.Clamp(load, 0, 100));
+                }
+                finally { item.Dispose(); }
+            }
+            return values.Count == 0 ? -1 : values.Average();
+        }
+        catch { return -1; }
+    }
+
     public (string Name, double UsagePercent, long FreeBytes, long TotalBytes) GetSystemDrive()
     {
         try
