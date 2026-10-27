@@ -50,8 +50,8 @@ public partial class ProcessManagerWindow : Window
         if (ProcessGrid.SelectedItem is ProcessEntry entry)
         {
             StatusText.Text = entry.IsProtected
-                ? $"Protegido: {entry.Name} (PID {entry.Id}) — {entry.ProtectionReason}."
-                : $"Selecionado: {entry.Name} (PID {entry.Id}), {entry.MemoryText}. Primeiro será tentado o fechamento normal, se houver janela.";
+                ? $"Protegido: {entry.Name} (PID {entry.Id}) — {entry.ProtectionReason}. CPU: {entry.CpuText}; RAM: {entry.MemoryText}."
+                : $"Selecionado: {entry.Name} (PID {entry.Id}) — CPU: {entry.CpuText}; RAM: {entry.MemoryText}. Primeiro será tentado o fechamento normal, se houver janela.";
         }
         UpdateTerminateButton();
     }
