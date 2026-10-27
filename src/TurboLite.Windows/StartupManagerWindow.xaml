@@ -44,7 +44,7 @@
         <Border Grid.Row="3" Background="#17243A" CornerRadius="9" Padding="12" Margin="0,12,0,0">
             <StackPanel>
                 <TextBlock Text="Modo de inspeção" Foreground="#5DE0A5" FontWeight="Bold"/>
-                <TextBlock Text="Desativação limitada à chave Run do usuário atual: o Turbo Lite guarda nome, comando e tipo no Registro antes de remover a entrada. Restaurar não sobrescreve uma entrada que tenha sido recriada. Não desative itens desconhecidos; alguns são necessários para segurança ou sincronização."
+                <TextBlock Text="A desativação é limitada a entradas compatíveis da chave Run do usuário atual e atalhos .lnk da pasta de inicialização pessoal. O Turbo Lite guarda backup antes de alterar e não sobrescreve entradas/atalhos recriados. Itens do sistema, RunOnce e a pasta compartilhada são somente leitura. Não desative itens desconhecidos: alguns são importantes para segurança ou sincronização."
                            Foreground="#C5D0E2" TextWrapping="Wrap" FontSize="11" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
