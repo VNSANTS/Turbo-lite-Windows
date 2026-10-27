@@ -7,6 +7,7 @@ namespace TurboLite.Windows;
 public partial class MainWindow : Window
 {
     private readonly SystemDiagnosticsService _diagnostics = new();
+    private readonly RecommendationService _recommendations = new();
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(8) };
 
     public MainWindow()
@@ -62,21 +63,23 @@ public partial class MainWindow : Window
                 return (memory, disk, processes, cpu: _diagnostics.GetCpuName(), os: _diagnostics.GetOsName());
             });
 
+            double ramPercent = 0;
             if (snapshot.memory.TotalMb > 0)
             {
                 ulong used = snapshot.memory.TotalMb - Math.Min(snapshot.memory.TotalMb, snapshot.memory.AvailableMb);
-                double percent = (double)used / snapshot.memory.TotalMb * 100;
-                RamValue.Text = $"{percent:0}%";
+                ramPercent = (double)used / snapshot.memory.TotalMb * 100;
+                RamValue.Text = $"{ramPercent:0}%";
                 RamDetail.Text = $"{SystemDiagnosticsService.FormatBytes((long)used * 1024 * 1024)} usados de {snapshot.memory.TotalMb / 1024.0:0.0} GB";
-                RamBar.Value = percent;
+                RamBar.Value = ramPercent;
             }
             else { RamValue.Text = "N/D"; RamDetail.Text = "Não foi possível consultar a RAM"; }
 
             DiskValue.Text = $"{snapshot.disk.UsagePercent:0}%";
-            DiskDetail.Text = $"Uso do volume {snapshot.disk.Name}";
+            DiskDetail.Text = $"Uso do volume {snapshot.disk.Name} • {SystemDiagnosticsService.FormatBytes(snapshot.disk.FreeBytes)} livres";
             DiskBar.Value = snapshot.disk.UsagePercent;
             ProcessValue.Text = snapshot.processes.Count.ToString();
             ProcessDetail.Text = $"Conjunto de trabalho: {SystemDiagnosticsService.FormatBytes(snapshot.processes.WorkingSetBytes)}";
+            RecommendationList.ItemsSource = _recommendations.Build(ramPercent, snapshot.disk.FreeBytes, snapshot.disk.TotalBytes, snapshot.processes.Count);
             CpuName.Text = snapshot.cpu;
             OsName.Text = snapshot.os;
             StatusText.Text = $"Atualizado às {DateTime.Now:HH:mm:ss}";
