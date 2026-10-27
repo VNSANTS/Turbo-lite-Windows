@@ -40,3 +40,8 @@ O modo de energia usa os planos nativos que já existem no Windows; não cria pl
 ## Aviso sobre Windows 10
 
 O suporte padrão do Windows 10 terminou em 14 de outubro de 2025. Verifique as opções de atualizações de segurança aplicáveis à sua edição.
+
+## Direção visual e UX
+
+A interface segue um sistema visual escuro para ferramenta de diagnóstico: superfícies em camadas, bordas discretas, ciano como acento de ação, hierarquia tipográfica consistente e estados de foco/hover visíveis. A revisão usa princípios do [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill): consistência de tokens, legibilidade, feedback claro e controles com estados acessíveis. O skill é uma referência de design; não é uma dependência de runtime do aplicativo.
+
