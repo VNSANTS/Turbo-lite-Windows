@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="0,0,0,18">
             <TextBlock Text="Gerenciador de processos" FontSize="27" FontWeight="Bold"/>
-            <TextBlock Text="Uso de CPU por amostragem de 0,5 s e memória • nenhuma ação é executada automaticamente"
+            <TextBlock Text="Uso de CPU por amostragem de 0,5 s e memória • ações sempre confirmadas"
                        Foreground="#9AAAC4" Margin="0,5,0,0"/>
         </StackPanel>
         <DockPanel Grid.Row="1" Margin="0,0,0,12">
@@ -22,6 +22,9 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="16,8" Margin="0,0,8,0"
                         Background="#12384A" Foreground="#E8F0FF" BorderBrush="#23627A"/>
+                <Button x:Name="TrimRamButton" Content="Liberar RAM do selecionado" Click="TrimRam_Click"
+                        Padding="16,8" Margin="0,0,8,0" Background="#17463D" Foreground="#FFFFFF" BorderBrush="#267B68"
+                        IsEnabled="False"/>
                 <Button x:Name="TerminateButton" Content="Encerrar selecionado" Click="Terminate_Click"
                         Padding="16,8" Background="#5A2632" Foreground="#FFFFFF" BorderBrush="#8B3548"
                         IsEnabled="False"/>
