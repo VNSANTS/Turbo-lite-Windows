@@ -26,7 +26,7 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <Grid Grid.Row="0" Margin="0,0,0,24">
-                <StackPanel><TextBlock Text="Visão geral" FontSize="30" FontWeight="Bold" CharacterSpacing="150"/><TextBlock Text="MONITORAMENTO DO SISTEMA  •  Atualização automática a cada 8 segundos" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,6,0,0"/></StackPanel>
+                <StackPanel><TextBlock Text="Visão geral" FontSize="30" FontWeight="Bold"/><TextBlock Text="MONITORAMENTO DO SISTEMA  •  Atualização automática a cada 8 segundos" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,6,0,0"/></StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Content="▤  Processos" Click="OpenProcesses_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="◷  Inicialização" Click="OpenStartup_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="▧  Armazenamento" Click="OpenStorage_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="↻  Atualizar" Click="Refresh_Click" Padding="12,9" Background="#12384A" BorderBrush="#23627A"/></StackPanel>
             </Grid>
             <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,18">
