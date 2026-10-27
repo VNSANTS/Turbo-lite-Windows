@@ -79,23 +79,26 @@ public sealed class StartupManagerService
         try
         {
             using var root = Registry.CurrentUser.OpenSubKey(BackupPath, writable: false);
-            if (root is null) return entries;
-            foreach (var id in root.GetSubKeyNames())
+            if (root is not null)
             {
-                try
+                foreach (var id in root.GetSubKeyNames())
                 {
-                    using var item = root.OpenSubKey(id, writable: false);
-                    if (item is null) continue;
-                    entries.Add(new StartupEntry(
-                        item.GetValue("OriginalName")?.ToString() ?? id,
-                        item.GetValue("OriginalData")?.ToString() ?? string.Empty,
-                        "Backup Turbo Lite",
-                        "Desativado (reversível)"));
+                    try
+                    {
+                        using var item = root.OpenSubKey(id, writable: false);
+                        if (item is null) continue;
+                        entries.Add(new StartupEntry(
+                            item.GetValue("OriginalName")?.ToString() ?? id,
+                            item.GetValue("OriginalData")?.ToString() ?? string.Empty,
+                            "Backup Turbo Lite",
+                            "Desativado (reversível)"));
+                    }
+                    catch { }
                 }
-                catch { }
             }
         }
         catch { }
+
         try
         {
             if (Directory.Exists(StartupFileBackupPath))
