@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading;
 
 namespace TurboLite.Windows.Services;
 
@@ -7,6 +8,8 @@ public sealed record ProcessEntry(
     string Name,
     string MemoryText,
     long WorkingSetBytes,
+    double CpuPercent,
+    string CpuText,
     bool IsProtected,
     string ProtectionReason);
 
@@ -21,32 +24,71 @@ public sealed class ProcessManagerService
 
     public IReadOnlyList<ProcessEntry> GetProcesses()
     {
-        var entries = new List<ProcessEntry>();
-        foreach (var process in Process.GetProcesses())
+        var samples = new Dictionary<int, (TimeSpan Cpu, string Name, long Memory)>();
+        var firstPass = Process.GetProcesses();
+        var timer = Stopwatch.StartNew();
+        try
         {
-            try
+            foreach (var process in firstPass)
             {
-                long memory = process.WorkingSet64;
-                string name = process.ProcessName;
-                bool protectedProcess = process.Id <= 4 || ProtectedNames.Contains(name);
-                string reason = process.Id <= 4
-                    ? "Processo do sistema"
-                    : ProtectedNames.Contains(name)
-                        ? "Processo crítico ou componente do Windows"
-                        : string.Empty;
+                try
+                {
+                    samples[process.Id] = (process.TotalProcessorTime, process.ProcessName, process.WorkingSet64);
+                }
+                catch
+                {
+                    // Alguns processos terminam ou negam acesso durante a amostragem.
+                }
+                finally { process.Dispose(); }
+            }
+        }
+        finally
+        {
+            foreach (var process in firstPass) { try { process.Dispose(); } catch { } }
+        }
 
-                entries.Add(new ProcessEntry(process.Id, name,
-                    SystemDiagnosticsService.FormatBytes(memory), memory,
-                    protectedProcess, reason));
-            }
-            catch
+        Thread.Sleep(500);
+        timer.Stop();
+        double elapsedMs = Math.Max(1, timer.Elapsed.TotalMilliseconds);
+        var entries = new List<ProcessEntry>();
+        var secondPass = Process.GetProcesses();
+        try
+        {
+            foreach (var process in secondPass)
             {
-                // Processos podem terminar ou negar acesso durante a leitura.
+                try
+                {
+                    int id = process.Id;
+                    string name = process.ProcessName;
+                    long memory = process.WorkingSet64;
+                    bool protectedProcess = id <= 4 || ProtectedNames.Contains(name);
+                    string reason = id <= 4
+                        ? "Processo do sistema"
+                        : ProtectedNames.Contains(name)
+                            ? "Processo crítico ou componente do Windows"
+                            : string.Empty;
+
+                    double cpuPercent = -1;
+                    if (samples.TryGetValue(id, out var before))
+                    {
+                        var deltaMs = (process.TotalProcessorTime - before.Cpu).TotalMilliseconds;
+                        cpuPercent = Math.Clamp(deltaMs / (elapsedMs * Math.Max(1, Environment.ProcessorCount)) * 100, 0, 100);
+                    }
+
+                    entries.Add(new ProcessEntry(
+                        id, name, SystemDiagnosticsService.FormatBytes(memory), memory,
+                        cpuPercent, cpuPercent < 0 ? "N/D" : $"{cpuPercent:0.0}%",
+                        protectedProcess, reason));
+                }
+                catch
+                {
+                    // Processos podem terminar ou negar acesso durante a leitura.
+                }
             }
-            finally
-            {
-                process.Dispose();
-            }
+        }
+        finally
+        {
+            foreach (var process in secondPass) { try { process.Dispose(); } catch { } }
         }
 
         return entries.OrderByDescending(p => p.WorkingSetBytes).ToArray();
@@ -57,8 +99,6 @@ public sealed class ProcessManagerService
         ValidateTarget(processId);
         using var process = Process.GetProcessById(processId);
 
-        // Aplicativos com janela recebem primeiro um pedido normal de fechamento,
-        // permitindo salvar dados ou mostrar a própria confirmação.
         if (process.MainWindowHandle == IntPtr.Zero)
             return false;
 
