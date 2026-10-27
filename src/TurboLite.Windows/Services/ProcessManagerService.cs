@@ -26,27 +26,20 @@ public sealed class ProcessManagerService
     {
         var samples = new Dictionary<int, (TimeSpan Cpu, string Name, long Memory)>();
         var firstPass = Process.GetProcesses();
-        var timer = Stopwatch.StartNew();
-        try
+        foreach (var process in firstPass)
         {
-            foreach (var process in firstPass)
+            try
             {
-                try
-                {
-                    samples[process.Id] = (process.TotalProcessorTime, process.ProcessName, process.WorkingSet64);
-                }
-                catch
-                {
-                    // Alguns processos terminam ou negam acesso durante a amostragem.
-                }
-                finally { process.Dispose(); }
+                samples[process.Id] = (process.TotalProcessorTime, process.ProcessName, process.WorkingSet64);
             }
-        }
-        finally
-        {
-            foreach (var process in firstPass) { try { process.Dispose(); } catch { } }
+            catch
+            {
+                // Alguns processos terminam ou negam acesso durante a amostragem.
+            }
+            finally { process.Dispose(); }
         }
 
+        var timer = Stopwatch.StartNew();
         Thread.Sleep(500);
         timer.Stop();
         double elapsedMs = Math.Max(1, timer.Elapsed.TotalMilliseconds);
