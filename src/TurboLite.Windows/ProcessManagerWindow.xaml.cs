@@ -30,7 +30,7 @@ public partial class ProcessManagerWindow : Window
             var processes = await Task.Run(_service.GetProcesses);
             ProcessGrid.ItemsSource = processes;
             CountText.Text = $"{processes.Count} processos encontrados";
-            StatusText.Text = "Ordenado por memória utilizada. A proteção é conservadora, mas não substitui a análise do nome e do aplicativo.";
+            StatusText.Text = "Ordenado por memória utilizada. A proteção por nome é conservadora, mas não identifica todos os processos críticos.";
         }
         catch (Exception ex)
         {
@@ -50,7 +50,7 @@ public partial class ProcessManagerWindow : Window
         {
             StatusText.Text = entry.IsProtected
                 ? $"Protegido: {entry.Name} (PID {entry.Id}) — {entry.ProtectionReason}."
-                : $"Selecionado: {entry.Name} (PID {entry.Id}), {entry.MemoryText}. Encerre apenas se reconhecer o processo e tiver salvo seu trabalho.";
+                : $"Selecionado: {entry.Name} (PID {entry.Id}), {entry.MemoryText}. Primeiro será tentado o fechamento normal, se houver janela.";
         }
         UpdateTerminateButton();
     }
@@ -62,16 +62,15 @@ public partial class ProcessManagerWindow : Window
             !entry.IsProtected;
     }
 
-    private void Terminate_Click(object sender, RoutedEventArgs e)
+    private async void Terminate_Click(object sender, RoutedEventArgs e)
     {
         if (ProcessGrid.SelectedItem is not ProcessEntry entry || entry.IsProtected)
             return;
 
         var result = MessageBox.Show(
-            $"Deseja realmente encerrar '{entry.Name}' (PID {entry.Id})?\n\n" +
-            $"Memória em uso: {entry.MemoryText}.\n" +
-            "O aplicativo pode perder dados não salvos. O Turbo Lite não consegue garantir que o processo seja seguro apenas pelo nome.",
-            "Confirmar encerramento",
+            $"Fechar '{entry.Name}' (PID {entry.Id})?\n\nMemória em uso: {entry.MemoryText}.\n" +
+            "O aplicativo receberá primeiro um pedido normal de fechamento, quando possível. Salve seu trabalho antes de continuar.",
+            "Confirmar fechamento",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning,
             MessageBoxResult.No);
@@ -80,9 +79,28 @@ public partial class ProcessManagerWindow : Window
 
         try
         {
-            _service.Terminate(entry.Id);
-            StatusText.Text = $"Solicitação de encerramento enviada para {entry.Name}. Atualizando lista…";
-            _ = RefreshProcessesAsync();
+            bool closed = await Task.Run(() => _service.TryCloseGracefully(entry.Id));
+            if (!closed)
+            {
+                var force = MessageBox.Show(
+                    $"'{entry.Name}' não fechou normalmente ou não tem uma janela principal.\n\n" +
+                    "Forçar o encerramento pode causar perda de dados não salvos. Deseja forçar mesmo assim?",
+                    "Confirmar encerramento forçado",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning,
+                    MessageBoxResult.No);
+
+                if (force != MessageBoxResult.Yes)
+                {
+                    StatusText.Text = "Encerramento forçado cancelado pelo usuário.";
+                    return;
+                }
+
+                await Task.Run(() => _service.ForceTerminate(entry.Id));
+            }
+
+            StatusText.Text = $"Solicitação concluída para {entry.Name}. Atualizando lista…";
+            await RefreshProcessesAsync();
         }
         catch (Exception ex)
         {
