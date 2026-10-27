@@ -32,7 +32,7 @@ public sealed class PowerPlanService
         var plans = new List<PowerPlan>();
         foreach (var line in result.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
         {
-            var match = Regex.Match(line, @"Power Scheme GUID:\s*([a-fA-F0-9-]{36})\s*\((.*?)\)(\s*\*)?");
+            var match = Regex.Match(line, @"([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\s*\((.*?)\)(\s*\*)?\s*$");
             if (!match.Success) continue;
             plans.Add(new PowerPlan(match.Groups[1].Value, match.Groups[2].Value.Trim(), match.Groups[3].Success));
         }
