@@ -31,9 +31,16 @@ dotnet build src/TurboLite.Windows/TurboLite.Windows.csproj -c Release
 
 O workflow de CI compila o projeto no Windows e publica os artefatos de build para inspeção.
 
-## Estado do projeto
+## Módulos implementados
 
-Fase 1: estrutura do projeto, dashboard de diagnóstico e build automatizado. As otimizações reais serão adicionadas em módulos separados após validação.
+- Dashboard com leituras de CPU, RAM, processos, disco e recomendações.
+- Gerenciador de processos com salvaguardas contra encerramento de processos críticos.
+- Gerenciador de inicialização do usuário com cópia de segurança e restauração.
+- Armazenamento e limpeza de arquivos temporários com prévia e confirmação.
+- Histórico local de ações.
+- Modo de energia: lista os planos instalados, permite aplicar Desempenho/Equilibrado/Economia quando disponíveis e restaurar o plano anterior salvo.
+
+O modo de energia usa os planos nativos do Windows; não força overclock, não altera voltagem e não promete aumento de FPS. A disponibilidade de cada plano varia conforme o computador. Não há otimizações automáticas em segundo plano.
 
 ## Aviso sobre Windows 10
 
