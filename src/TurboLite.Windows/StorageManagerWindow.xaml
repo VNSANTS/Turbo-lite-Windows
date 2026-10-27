@@ -1,0 +1,72 @@
+<Window x:Class="TurboLite.Windows.StorageManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Turbo Lite Windows — Armazenamento" Height="700" Width="1040"
+        MinHeight="540" MinWidth="800" WindowStartupLocation="CenterOwner"
+        Background="#070B16" Foreground="#E8F0FF">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock Text="Armazenamento" FontSize="27" FontWeight="Bold"/>
+            <TextBlock Text="Espaço livre, utilização dos volumes e informações dos discos físicos."
+                       Foreground="#9AAAC4" Margin="0,5,0,0"/>
+        </StackPanel>
+        <DockPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock x:Name="CountText" Text="Consultando unidades…" VerticalAlignment="Center"
+                       Foreground="#9AAAC4" DockPanel.Dock="Left"/>
+            <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="16,8"
+                    HorizontalAlignment="Right" Background="#12384A"
+                    Foreground="#E8F0FF" BorderBrush="#23627A"/>
+        </DockPanel>
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="VOLUMES E PARTIÇÕES" FontSize="11" FontWeight="Bold"
+                           Foreground="#9AAAC4" Margin="0,0,0,9"/>
+                <ItemsControl x:Name="VolumeList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#0E1526" BorderBrush="#25334A" BorderThickness="1"
+                                    CornerRadius="12" Padding="15" Margin="0,0,0,9">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Status}" DockPanel.Dock="Right"
+                                                   Foreground="#5DE0A5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding Label}" Foreground="#9AAAC4" Margin="0,3,0,9"/>
+                                    <ProgressBar Height="7" Maximum="100" Value="{Binding UsedPercent}"
+                                                 Background="#25334A" Foreground="#00D4FF"/>
+                                    <TextBlock Text="{Binding UsageText}" Foreground="#C5D0E2"
+                                               FontSize="12" Margin="0,7,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="DISCOS FÍSICOS" FontSize="11" FontWeight="Bold"
+                           Foreground="#9AAAC4" Margin="0,12,0,9"/>
+                <DataGrid x:Name="DiskGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                          CanUserAddRows="False" Background="#0E1526" Foreground="#E8F0FF"
+                          BorderBrush="#25334A" GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column" RowBackground="#0E1526"
+                          AlternatingRowBackground="#111D30" HorizontalGridLinesBrush="#25334A">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Modelo" Binding="{Binding Model}" Width="2*"/>
+                        <DataGridTextColumn Header="Interface" Binding="{Binding InterfaceType}" Width="*"/>
+                        <DataGridTextColumn Header="Tipo reportado" Binding="{Binding MediaType}" Width="1.4*"/>
+                        <DataGridTextColumn Header="Capacidade" Binding="{Binding SizeText}" Width="*"/>
+                        <DataGridTextColumn Header="Status Windows" Binding="{Binding WindowsStatus}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="3" Background="#17243A" CornerRadius="9" Padding="12" Margin="0,12,0,0">
+            <TextBlock x:Name="NoteText" TextWrapping="Wrap" Foreground="#C5D0E2" FontSize="11"/>
+        </Border>
+    </Grid>
+</Window>
