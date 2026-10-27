@@ -19,7 +19,7 @@ Aplicativo Windows para diagnóstico e otimização controlada de computadores m
 
 ## Segurança por padrão
 
-A primeira versão é somente diagnóstico: não altera configurações do Windows automaticamente. Cada operação de sistema será implementada como ação explícita, com explicação, validação de permissões, log e mecanismo de reversão quando tecnicamente possível. Não desative Defender, firewall, atualizações ou serviços essenciais em lote.
+O app combina diagnóstico somente leitura com ações manuais explícitas. Alterações de energia exigem confirmação e guardam o plano anterior; alterações de inicialização compatíveis usam backup e restauração; limpeza temporária mostra prévia e pede confirmação. O gerenciador de processos não encerra nada automaticamente e pede confirmação adicional para encerramento forçado. Não desative Defender, firewall, Windows Update, arquivo de paginação ou serviços essenciais em lote.
 
 ## Build
 
@@ -34,13 +34,13 @@ O workflow de CI compila o projeto no Windows e publica os artefatos de build pa
 ## Módulos implementados
 
 - Dashboard com leituras de CPU, RAM, processos, disco e recomendações.
-- Gerenciador de processos com salvaguardas contra encerramento de processos críticos.
-- Gerenciador de inicialização do usuário com cópia de segurança e restauração.
+- Gerenciador de processos com leitura aproximada de CPU por processo (amostragem de 0,5 s), memória e salvaguardas contra encerramento de processos críticos.
+- Gerenciador de inicialização: entradas compatíveis da chave Run do usuário e atalhos .lnk da pasta pessoal podem ser desativados com backup e restaurados; outras origens são somente leitura.
 - Armazenamento e limpeza de arquivos temporários com prévia e confirmação.
 - Histórico local de ações.
 - Modo de energia: lista os planos instalados, permite aplicar Desempenho/Equilibrado/Economia quando disponíveis e restaurar o plano anterior salvo.
 
-O modo de energia usa os planos nativos do Windows; não força overclock, não altera voltagem e não promete aumento de FPS. A disponibilidade de cada plano varia conforme o computador. Não há otimizações automáticas em segundo plano.
+O modo de energia usa os planos nativos que já existem no Windows; não cria planos ausentes, não força overclock, não altera voltagem e não promete aumento de FPS. A disponibilidade de cada plano varia conforme o computador. A leitura de CPU por processo é aproximada e pode exibir N/D quando o processo não permite consulta. Não há otimizações automáticas em segundo plano.
 
 ## Aviso sobre Windows 10
 
