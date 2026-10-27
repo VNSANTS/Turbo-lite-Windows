@@ -8,6 +8,7 @@ public partial class ProcessManagerWindow : Window
 {
     private readonly ProcessManagerService _service = new();
     private readonly ActionLogService _log = new();
+    private readonly RamOptimizerService _ramOptimizer = new();
     private bool _loading;
 
     public ProcessManagerWindow()
@@ -23,6 +24,7 @@ public partial class ProcessManagerWindow : Window
         if (_loading) return;
         _loading = true;
         TerminateButton.IsEnabled = false;
+        TrimRamButton.IsEnabled = false;
         CountText.Text = "Atualizando lista…";
         StatusText.Text = "Coletando processos. Alguns podem desaparecer ou negar acesso durante a leitura.";
 
@@ -58,9 +60,35 @@ public partial class ProcessManagerWindow : Window
 
     private void UpdateTerminateButton()
     {
-        TerminateButton.IsEnabled = !_loading &&
-            ProcessGrid.SelectedItem is ProcessEntry entry &&
-            !entry.IsProtected;
+        bool eligible = !_loading && ProcessGrid.SelectedItem is ProcessEntry entry && !entry.IsProtected && entry.Id > 4;
+        TerminateButton.IsEnabled = eligible;
+        TrimRamButton.IsEnabled = eligible;
+    }
+
+
+    private async void TrimRam_Click(object sender, RoutedEventArgs e)
+    {
+        if (ProcessGrid.SelectedItem is not ProcessEntry entry || entry.IsProtected || entry.Id <= 4) return;
+
+        var result = MessageBox.Show(
+            $"Solicitar ao Windows a liberação de páginas do conjunto de trabalho de '{entry.Name}' (PID {entry.Id})?\n\n" +
+            $"Memória atual do processo: {entry.MemoryText}.\n\n" +
+            "O aplicativo continuará aberto. O Windows pode precisar carregar essas páginas novamente, causando lentidão temporária; não há garantia de ganho permanente de RAM. Salve seu trabalho antes de continuar.",
+            "Confirmar otimização de RAM", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+
+        if (result != MessageBoxResult.Yes) return;
+        try
+        {
+            await Task.Run(() => _ramOptimizer.TrimWorkingSet(entry.Id));
+            _log.Write("Memória RAM", "Solicitar redução do conjunto de trabalho", "Sucesso", $"{entry.Name} (PID {entry.Id}); memória antes: {entry.MemoryText}");
+            StatusText.Text = $"Solicitação enviada ao Windows para {entry.Name}. A redução pode ser temporária; atualizando lista…";
+            await RefreshProcessesAsync();
+        }
+        catch (Exception ex)
+        {
+            _log.Write("Memória RAM", "Solicitar redução do conjunto de trabalho", "Falha", $"{entry.Name} (PID {entry.Id}): {ex.Message}");
+            MessageBox.Show($"O Windows não permitiu otimizar este processo.\n\n{ex.Message}", "Otimização não concluída", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private async void Terminate_Click(object sender, RoutedEventArgs e)
