@@ -40,7 +40,7 @@
                     <StackPanel>
                         <TextBlock Text="Recomendações" FontSize="18" FontWeight="Bold"/>
                         <TextBlock Text="BASEADAS NAS MÉTRICAS ATUAIS" FontSize="10" Foreground="{StaticResource MutedBrush}" FontWeight="Bold" Margin="0,18,0,14"/>
-                        <ItemsControl x:Name="RecommendationList">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="360"><ItemsControl x:Name="RecommendationList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="#17243A" BorderBrush="{Binding Accent}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,0,9">
@@ -52,7 +52,7 @@
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        </ItemsControl></ScrollViewer>
                     </StackPanel>
                 </Border>
             </Grid>
