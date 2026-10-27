@@ -127,13 +127,13 @@ public sealed class PowerPlanService
             }
         };
         process.Start();
-        var stdout = process.StandardOutput.ReadToEnd();
-        var stderr = process.StandardError.ReadToEnd();
         if (!process.WaitForExit(10000))
         {
             try { process.Kill(true); } catch { }
             throw new TimeoutException("O comando de energia demorou mais de 10 segundos e foi interrompido.");
         }
+        var stdout = process.StandardOutput.ReadToEnd();
+        var stderr = process.StandardError.ReadToEnd();
         return (process.ExitCode, string.Join(Environment.NewLine, new[] { stdout, stderr }.Where(s => !string.IsNullOrWhiteSpace(s))));
     }
 
