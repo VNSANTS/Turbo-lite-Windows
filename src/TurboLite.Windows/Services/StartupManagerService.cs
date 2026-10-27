@@ -149,24 +149,33 @@ public sealed class StartupManagerService
 
         foreach (var id in root.GetSubKeyNames())
         {
-            using var item = root.OpenSubKey(id, writable: false);
-            if (item is null) continue;
-
-            string originalName = item.GetValue("OriginalName")?.ToString() ?? string.Empty;
-            string originalPath = item.GetValue("OriginalPath")?.ToString() ?? string.Empty;
-            string data = item.GetValue("OriginalData")?.ToString() ?? string.Empty;
-            string kindText = item.GetValue("OriginalKind")?.ToString() ?? string.Empty;
+            string originalName;
+            string originalPath;
+            string data;
+            string kindText;
+            using (var item = root.OpenSubKey(id, writable: false))
+            {
+                if (item is null) continue;
+                originalName = item.GetValue("OriginalName")?.ToString() ?? string.Empty;
+                originalPath = item.GetValue("OriginalPath")?.ToString() ?? string.Empty;
+                data = item.GetValue("OriginalData")?.ToString() ?? string.Empty;
+                kindText = item.GetValue("OriginalKind")?.ToString() ?? string.Empty;
+            }
 
             if (string.IsNullOrWhiteSpace(originalName) || originalPath != RunPath ||
                 !Enum.TryParse(kindText, out RegistryValueKind kind) ||
                 kind is not (RegistryValueKind.String or RegistryValueKind.ExpandString))
                 continue;
 
-            using var target = Registry.CurrentUser.CreateSubKey(originalPath, writable: true);
-            if (target is null || target.GetValueNames().Contains(originalName, StringComparer.OrdinalIgnoreCase))
-                continue; // Não sobrescreve uma entrada criada depois da desativação.
+            bool nameExists;
+            using (var target = Registry.CurrentUser.CreateSubKey(originalPath, writable: true))
+            {
+                if (target is null) continue;
+                nameExists = target.GetValueNames().Contains(originalName, StringComparer.OrdinalIgnoreCase);
+                if (!nameExists) target.SetValue(originalName, data, kind);
+            }
+            if (nameExists) continue; // Não sobrescreve uma entrada criada depois da desativação.
 
-            target.SetValue(originalName, data, kind);
             root.DeleteSubKeyTree(id, throwOnMissingSubKey: false);
             restored++;
         }
