@@ -59,8 +59,9 @@ public partial class MainWindow : Window
             {
                 var memory = _diagnostics.GetMemory();
                 var disk = _diagnostics.GetSystemDrive();
+                var cpuUsage = _diagnostics.GetCpuUsagePercent();
                 var processes = _diagnostics.GetProcessSummary();
-                return (memory, disk, processes, cpu: _diagnostics.GetCpuName(), os: _diagnostics.GetOsName());
+                return (memory, disk, processes, cpuUsage, cpu: _diagnostics.GetCpuName(), os: _diagnostics.GetOsName());
             });
 
             double ramPercent = 0;
@@ -73,6 +74,14 @@ public partial class MainWindow : Window
                 RamBar.Value = ramPercent;
             }
             else { RamValue.Text = "N/D"; RamDetail.Text = "Não foi possível consultar a RAM"; }
+
+            if (snapshot.cpuUsage >= 0)
+            {
+                CpuUsageValue.Text = $"{snapshot.cpuUsage:0}%";
+                CpuUsageDetail.Text = "Carga reportada pelo Windows";
+                CpuUsageBar.Value = snapshot.cpuUsage;
+            }
+            else { CpuUsageValue.Text = "N/D"; CpuUsageDetail.Text = "Carga indisponível"; CpuUsageBar.Value = 0; }
 
             DiskValue.Text = $"{snapshot.disk.UsagePercent:0}%";
             DiskDetail.Text = $"Uso do volume {snapshot.disk.Name} • {SystemDiagnosticsService.FormatBytes(snapshot.disk.FreeBytes)} livres";
