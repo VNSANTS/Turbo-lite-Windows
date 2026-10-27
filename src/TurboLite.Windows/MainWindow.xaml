@@ -15,7 +15,7 @@
                     <TextBlock Text="▤  Processos" Foreground="{StaticResource MutedBrush}" Margin="12,13,0,13"/>
                     <TextBlock Text="◷  Inicialização" Foreground="{StaticResource MutedBrush}" Margin="12,0,0,13"/>
                     <TextBlock Text="⚙  Otimizações" Foreground="{StaticResource MutedBrush}" Margin="12,0,0,13"/>
-                    <TextBlock Text="▧  Limpeza" Foreground="{StaticResource MutedBrush}" Margin="12,0,0,13"/>
+                    <Button Content="▧  Limpeza segura" Click="OpenCleanup_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
                 </StackPanel>
                 <Border DockPanel.Dock="Bottom" Background="#111D30" CornerRadius="10" Padding="12" Margin="0,20,0,0">
                     <StackPanel><TextBlock Text="MODO CONTROLADO" Foreground="#5DE0A5" FontSize="11" FontWeight="Bold"/><TextBlock Text="Diagnóstico e ações manuais controladas. Ajustes permanentes do Windows não são aplicados automaticamente." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,6,0,0"/></StackPanel>
