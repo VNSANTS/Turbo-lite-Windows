@@ -7,7 +7,7 @@ public sealed class RecommendationService
     private const long GiB = 1024L * 1024 * 1024;
 
     public IReadOnlyList<DiagnosticRecommendation> Build(
-        double ramPercent, long diskFreeBytes, long diskTotalBytes, int processCount)
+        double ramPercent, long diskFreeBytes, long diskTotalBytes, int processCount, string osName)
     {
         var items = new List<DiagnosticRecommendation>();
 
@@ -37,6 +37,12 @@ public sealed class RecommendationService
             items.Add(new("Muitos processos em execução",
                 $"O Windows informou {processCount} processos. A quantidade, sozinha, não prova que exista um problema.",
                 "Use a lista de processos para investigar consumo alto de RAM; não aplique encerramento em massa.",
+                "#FFC93C"));
+
+        if (osName.Contains("Windows 10", StringComparison.OrdinalIgnoreCase))
+            items.Add(new("Verifique a cobertura de segurança do Windows",
+                "O suporte padrão do Windows 10 terminou em 14/10/2025.",
+                "Confirme se o PC recebe atualizações de segurança pelo ESU ou planeje uma migração compatível. Não desative o Windows Update.",
                 "#FFC93C"));
 
         if (items.Count == 0)
