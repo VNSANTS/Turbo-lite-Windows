@@ -25,7 +25,13 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
-    private void OpenStartup_Click(object sender, RoutedEventArgs e)\n    {\n        var window = new StartupManagerWindow { Owner = this };\n        window.ShowDialog();\n    }\n\n    private async Task RefreshDiagnosticsAsync()
+    private void OpenStartup_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new StartupManagerWindow { Owner = this };
+        window.ShowDialog();
+    }
+
+    private async Task RefreshDiagnosticsAsync()
     {
         try
         {
