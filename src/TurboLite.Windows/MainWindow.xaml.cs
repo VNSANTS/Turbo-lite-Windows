@@ -79,7 +79,7 @@ public partial class MainWindow : Window
             DiskBar.Value = snapshot.disk.UsagePercent;
             ProcessValue.Text = snapshot.processes.Count.ToString();
             ProcessDetail.Text = $"Conjunto de trabalho: {SystemDiagnosticsService.FormatBytes(snapshot.processes.WorkingSetBytes)}";
-            RecommendationList.ItemsSource = _recommendations.Build(ramPercent, snapshot.disk.FreeBytes, snapshot.disk.TotalBytes, snapshot.processes.Count);
+            RecommendationList.ItemsSource = _recommendations.Build(ramPercent, snapshot.disk.FreeBytes, snapshot.disk.TotalBytes, snapshot.processes.Count, snapshot.os);
             CpuName.Text = snapshot.cpu;
             OsName.Text = snapshot.os;
             StatusText.Text = $"Atualizado às {DateTime.Now:HH:mm:ss}";
