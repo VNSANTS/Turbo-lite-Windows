@@ -11,11 +11,11 @@
                     <TextBlock Text="TURBO LITE" FontSize="23" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
                     <TextBlock Text="WINDOWS TOOLKIT" FontSize="10" Foreground="{StaticResource MutedBrush}" Margin="1,4,0,30"/>
                     <TextBlock Text="PAINEL" FontSize="10" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,10"/>
-                    <Border Background="#173148" CornerRadius="9" Padding="12" Margin="0,0,0,6"><TextBlock Text="◈  Visão geral" FontWeight="SemiBold"/></Border>
+                    <Border Background="#123044" BorderBrush="#35D0FF" BorderThickness="1,0,0,1" CornerRadius="9" Padding="12" Margin="0,0,0,8"><TextBlock Text="◈  Visão geral" FontWeight="SemiBold" Foreground="#F1F5F9"/></Border>
                     <Button Content="▤  Processos" Click="OpenProcesses_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
                     <Button Content="◷  Inicialização" Click="OpenStartup_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
                     <Button Content="▧  Armazenamento" Click="OpenStorage_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
-                    <Button Content="⚡  Modo desempenho" Click="OpenPowerMode_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#12384A" Foreground="{StaticResource TextBrush}" BorderBrush="#23627A"/>
+                    <Button Content="⚡  Modo desempenho" Click="OpenPowerMode_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
                     <Button Content="◷  Histórico de ações" Click="OpenHistory_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/><Button Content="▧  Limpeza segura" Click="OpenCleanup_Click" HorizontalContentAlignment="Left" Padding="12,9" Margin="0,0,0,8" Background="#111D30" Foreground="{StaticResource MutedBrush}" BorderBrush="#25334A"/>
                 </StackPanel>
                 <Border DockPanel.Dock="Bottom" Background="#111D30" CornerRadius="10" Padding="12" Margin="0,20,0,0">
@@ -26,7 +26,7 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
             <Grid Grid.Row="0" Margin="0,0,0,24">
-                <StackPanel><TextBlock Text="Visão geral" FontSize="30" FontWeight="Bold"/><TextBlock Text="Diagnóstico com atualização automática a cada 8 segundos" Foreground="{StaticResource MutedBrush}" Margin="0,5,0,0"/></StackPanel>
+                <StackPanel><TextBlock Text="Visão geral" FontSize="30" FontWeight="Bold" CharacterSpacing="150"/><TextBlock Text="MONITORAMENTO DO SISTEMA  •  Atualização automática a cada 8 segundos" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,6,0,0"/></StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Content="▤  Processos" Click="OpenProcesses_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="◷  Inicialização" Click="OpenStartup_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="▧  Armazenamento" Click="OpenStorage_Click" Padding="12,9" Margin="0,0,6,0" Background="#17243A" BorderBrush="#34445F"/><Button Content="↻  Atualizar" Click="Refresh_Click" Padding="12,9" Background="#12384A" BorderBrush="#23627A"/></StackPanel>
             </Grid>
             <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,18">
