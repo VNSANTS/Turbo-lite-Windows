@@ -57,11 +57,13 @@ public partial class CleanupWindow : Window
         StatusText.Text = "Excluindo arquivos que ainda podem ser removidos…";
         try
         {
-            var result = await Task.Run(() => _service.Clean(_preview));
+            var preview = _preview;
+            var result = await Task.Run(() => _service.Clean(preview));
             MessageBox.Show(
                 $"Arquivos excluídos: {result.DeletedCount}\nEspaço liberado: {SystemDiagnosticsService.FormatBytes(result.FreedBytes)}\nFalhas/arquivos em uso: {result.FailedCount}",
                 "Resultado da limpeza", MessageBoxButton.OK, MessageBoxImage.Information);
             _preview = null;
+            _busy = false;
             await LoadPreviewAsync();
         }
         catch (Exception ex)
