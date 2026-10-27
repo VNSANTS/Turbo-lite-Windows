@@ -69,7 +69,10 @@ public sealed class PowerPlanService
 
         var result = RunPowerCfg($"/setactive {guid}");
         if (result.ExitCode != 0)
+        {
+            _log.Write("Energia", "Alterar plano de energia", "Falha", $"{selected.Name}: {result.Output}");
             throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Output) ? "O Windows recusou a alteração do plano de energia." : result.Output.Trim());
+        }
 
         _log.Write("Energia", "Alterar plano de energia", "Sucesso", $"Plano aplicado: {selected.Name} ({guid}).");
         return selected.Name;
@@ -93,7 +96,10 @@ public sealed class PowerPlanService
 
         var result = RunPowerCfg($"/setactive {saved.Guid}");
         if (result.ExitCode != 0)
+        {
+            _log.Write("Energia", "Restaurar plano anterior", "Falha", $"{saved.Name}: {result.Output}");
             throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Output) ? "Não foi possível restaurar o plano anterior." : result.Output.Trim());
+        }
 
         _log.Write("Energia", "Restaurar plano anterior", "Sucesso", $"Plano restaurado: {saved.Name} ({saved.Guid}).");
         File.Delete(_statePath);
