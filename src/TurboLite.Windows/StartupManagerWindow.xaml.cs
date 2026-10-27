@@ -80,7 +80,8 @@ public partial class StartupManagerWindow : Window
         {
             var entries = _service.GetEntries();
             StartupGrid.ItemsSource = entries;
-            var pending = _service.GetDisabledEntries().Count;\n            CountText.Text = $"{entries.Count} itens encontrados • {pending} backup(s) reversível(is)";
+            var pending = _service.GetDisabledEntries().Count;
+            CountText.Text = $"{entries.Count} itens encontrados • {pending} backup(s) reversível(is)";
         }
         catch (Exception ex)
         {
