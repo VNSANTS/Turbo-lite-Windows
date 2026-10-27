@@ -43,6 +43,12 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
+    private void OpenHistory_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new HistoryWindow { Owner = this };
+        window.ShowDialog();
+    }
+
     private async Task RefreshDiagnosticsAsync()
     {
         try
