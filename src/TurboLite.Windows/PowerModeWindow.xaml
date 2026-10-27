@@ -49,6 +49,7 @@
         </Grid>
         <StackPanel Grid.Row="3" Margin="0,16,0,0">
             <WrapPanel>
+                <Button Content="Aplicar selecionado" Click="ApplySelected_Click" Padding="14,10" Margin="0,0,8,8"/>
                 <Button Content="⚡ Aplicar desempenho" Click="Performance_Click" Background="#12384A"
                         BorderBrush="#23627A" Padding="14,10" Margin="0,0,8,8"/>
                 <Button Content="◉ Aplicar equilibrado" Click="Balanced_Click" Padding="14,10" Margin="0,0,8,8"/>
