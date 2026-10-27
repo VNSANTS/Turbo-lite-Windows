@@ -208,7 +208,7 @@ public sealed class StartupManagerService
     {
         int restored = 0;
         using var root = Registry.CurrentUser.OpenSubKey(BackupPath, writable: true);
-        if (root is null) return 0;
+        if (root is null) return RestoreStartupFolderShortcuts();
 
         foreach (var id in root.GetSubKeyNames())
         {
