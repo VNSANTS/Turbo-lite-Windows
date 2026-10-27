@@ -24,13 +24,13 @@ public sealed class ProcessManagerService
 
     public IReadOnlyList<ProcessEntry> GetProcesses()
     {
-        var samples = new Dictionary<int, (TimeSpan Cpu, string Name, long Memory)>();
+        var samples = new Dictionary<int, (TimeSpan Cpu, long Timestamp)>();
         var firstPass = Process.GetProcesses();
         foreach (var process in firstPass)
         {
             try
             {
-                samples[process.Id] = (process.TotalProcessorTime, process.ProcessName, process.WorkingSet64);
+                samples[process.Id] = (process.TotalProcessorTime, Stopwatch.GetTimestamp());
             }
             catch
             {
@@ -39,10 +39,7 @@ public sealed class ProcessManagerService
             finally { process.Dispose(); }
         }
 
-        var timer = Stopwatch.StartNew();
         Thread.Sleep(500);
-        timer.Stop();
-        double elapsedMs = Math.Max(1, timer.Elapsed.TotalMilliseconds);
         var entries = new List<ProcessEntry>();
         var secondPass = Process.GetProcesses();
         try
@@ -65,6 +62,7 @@ public sealed class ProcessManagerService
                     if (samples.TryGetValue(id, out var before))
                     {
                         var deltaMs = (process.TotalProcessorTime - before.Cpu).TotalMilliseconds;
+                        var elapsedMs = Math.Max(1, Stopwatch.GetElapsedTime(before.Timestamp).TotalMilliseconds);
                         cpuPercent = Math.Clamp(deltaMs / (elapsedMs * Math.Max(1, Environment.ProcessorCount)) * 100, 0, 100);
                     }
 
