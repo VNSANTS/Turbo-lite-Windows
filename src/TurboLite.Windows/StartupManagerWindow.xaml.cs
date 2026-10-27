@@ -20,21 +20,21 @@ public partial class StartupManagerWindow : Window
     {
         if (StartupGrid.SelectedItem is not StartupEntry entry || !entry.CanDisable)
         {
-            MessageBox.Show("Selecione uma entrada compatível da chave Run do usuário atual. Entradas do sistema, RunOnce e pastas não são alteradas por esta função.",
+            MessageBox.Show("Selecione uma entrada compatível da chave Run do usuário atual ou um atalho .lnk da pasta de inicialização pessoal. Entradas do sistema e a pasta compartilhada não são alteradas.",
                 "Seleção não compatível", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         var answer = MessageBox.Show(
-            $"Desativar a inicialização automática de '{entry.Name}'?\n\nComando: {entry.Command}\n\nO Turbo Lite salvará uma cópia reversível antes de remover a entrada. O programa instalado não será desinstalado.",
+            $"Desativar a inicialização automática de '{entry.Name}'?\n\nOrigem: {entry.Source}\nItem: {entry.Command}\n\nO Turbo Lite guardará uma cópia reversível. O programa instalado não será desinstalado.",
             "Confirmar desativação",
             MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
         if (answer != MessageBoxResult.Yes) return;
 
         try
         {
-            _service.DisableCurrentUserRunEntry(entry);
-            _log.Write("Inicialização", "Desativar entrada", "Sucesso", $"{entry.Name} | {entry.Command}");
+            _service.DisableEntry(entry);
+            _log.Write("Inicialização", "Desativar entrada", "Sucesso", $"{entry.Name} | {entry.Source} | {entry.Command}");
             MessageBox.Show("Entrada desativada e backup salvo. Use 'Restaurar backups' para reativá-la.",
                 "Concluído", MessageBoxButton.OK, MessageBoxImage.Information);
             RefreshEntries();
