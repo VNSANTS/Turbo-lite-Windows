@@ -36,7 +36,25 @@
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="1.15*"/><ColumnDefinition Width="0.85*"/></Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="20" Margin="0,0,9,0"><StackPanel><TextBlock Text="Seu sistema" FontSize="18" FontWeight="Bold"/><TextBlock Text="INFORMAÇÕES DO HARDWARE" FontSize="10" Foreground="{StaticResource MutedBrush}" FontWeight="Bold" Margin="0,18,0,10"/><TextBlock Text="Processador" Foreground="{StaticResource MutedBrush}"/><TextBlock x:Name="CpuName" Text="Detectando processador…" TextWrapping="Wrap" FontSize="14" Margin="0,4,0,14"/><TextBlock Text="Sistema operacional" Foreground="{StaticResource MutedBrush}"/><TextBlock x:Name="OsName" Text="Detectando Windows…" TextWrapping="Wrap" FontSize="14" Margin="0,4,0,14"/><TextBlock Text="Status da análise" Foreground="{StaticResource MutedBrush}"/><TextBlock x:Name="StatusText" Text="Preparando diagnóstico…" Foreground="#5DE0A5" FontSize="13" Margin="0,4,0,0"/></StackPanel></Border>
-                <Border Grid.Column="1" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="20" Margin="9,0,0,0"><StackPanel><TextBlock Text="Próximos módulos" FontSize="18" FontWeight="Bold"/><TextBlock Text="MÓDULOS DISPONÍVEIS" FontSize="10" Foreground="{StaticResource MutedBrush}" FontWeight="Bold" Margin="0,18,0,14"/><Border Background="#17243A" CornerRadius="9" Padding="12" Margin="0,0,0,9"><StackPanel><TextBlock Text="01  Gerenciador de processos" FontWeight="SemiBold"/><TextBlock Text="Lista real por consumo de memória, com pedido de fechamento e confirmação separada para forçar." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/></StackPanel></Border><Border Background="#17243A" CornerRadius="9" Padding="12" Margin="0,0,0,9"><StackPanel><TextBlock Text="02  Inicialização automática" FontWeight="SemiBold"/><TextBlock Text="Inspeciona chaves Run/RunOnce e pastas de inicialização sem alterar nada." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/></StackPanel></Border><Border Background="#17243A" CornerRadius="9" Padding="12"><StackPanel><TextBlock Text="03  Diagnóstico de armazenamento" FontWeight="SemiBold"/><TextBlock Text="Consulta volumes, espaço livre e dados reportados dos discos físicos, sem alterar arquivos." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/></StackPanel></Border></StackPanel></Border>
+                <Border Grid.Column="1" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" CornerRadius="14" Padding="20" Margin="9,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Recomendações" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="BASEADAS NAS MÉTRICAS ATUAIS" FontSize="10" Foreground="{StaticResource MutedBrush}" FontWeight="Bold" Margin="0,18,0,14"/>
+                        <ItemsControl x:Name="RecommendationList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#17243A" BorderBrush="{Binding Accent}" BorderThickness="1" CornerRadius="9" Padding="12" Margin="0,0,0,9">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{Binding Accent}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,5,0,0"/>
+                                            <TextBlock Text="{Binding Action}" TextWrapping="Wrap" Foreground="#C5D0E2" FontSize="11" Margin="0,7,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </Grid>
             <TextBlock Grid.Row="3" x:Name="FooterText" Text="Turbo Lite Windows • Diagnóstico somente leitura" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="2,14,0,0"/>
         </Grid>
