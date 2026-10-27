@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Security.Principal;
 
 namespace TurboLite.Windows.Services;
 
@@ -36,17 +35,13 @@ public sealed class ProcessManagerService
                         ? "Processo crítico ou componente do Windows"
                         : string.Empty;
 
-                entries.Add(new ProcessEntry(
-                    process.Id,
-                    name,
-                    SystemDiagnosticsService.FormatBytes(memory),
-                    memory,
-                    protectedProcess,
-                    reason));
+                entries.Add(new ProcessEntry(process.Id, name,
+                    SystemDiagnosticsService.FormatBytes(memory), memory,
+                    protectedProcess, reason));
             }
             catch
             {
-                // Alguns processos podem terminar ou negar acesso durante a leitura.
+                // Processos podem terminar ou negar acesso durante a leitura.
             }
             finally
             {
@@ -57,22 +52,40 @@ public sealed class ProcessManagerService
         return entries.OrderByDescending(p => p.WorkingSetBytes).ToArray();
     }
 
-    public void Terminate(int processId)
+    public bool TryCloseGracefully(int processId)
     {
-        if (processId <= 4)
-            throw new InvalidOperationException("O Turbo Lite bloqueia o encerramento de processos com PID 0 a 4.");
-
+        ValidateTarget(processId);
         using var process = Process.GetProcessById(processId);
-        string name = process.ProcessName;
 
-        if (ProtectedNames.Contains(name))
-            throw new InvalidOperationException($"O encerramento de '{name}' está bloqueado por proteção.");
+        // Aplicativos com janela recebem primeiro um pedido normal de fechamento,
+        // permitindo salvar dados ou mostrar a própria confirmação.
+        if (process.MainWindowHandle == IntPtr.Zero)
+            return false;
 
-        if (processId == Environment.ProcessId)
-            throw new InvalidOperationException("O aplicativo não pode encerrar a si próprio.");
+        if (!process.CloseMainWindow())
+            return false;
 
+        return process.WaitForExit(2500);
+    }
+
+    public void ForceTerminate(int processId)
+    {
+        ValidateTarget(processId);
+        using var process = Process.GetProcessById(processId);
         process.Kill(entireProcessTree: false);
         if (!process.WaitForExit(3000))
             throw new TimeoutException("O processo ainda não confirmou o encerramento.");
+    }
+
+    private static void ValidateTarget(int processId)
+    {
+        if (processId <= 4)
+            throw new InvalidOperationException("O Turbo Lite bloqueia o encerramento de processos com PID 0 a 4.");
+        if (processId == Environment.ProcessId)
+            throw new InvalidOperationException("O aplicativo não pode encerrar a si próprio.");
+
+        using var process = Process.GetProcessById(processId);
+        if (ProtectedNames.Contains(process.ProcessName))
+            throw new InvalidOperationException($"O encerramento de '{process.ProcessName}' está bloqueado por proteção.");
     }
 }
