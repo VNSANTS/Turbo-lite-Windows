@@ -7,6 +7,7 @@ namespace TurboLite.Windows;
 public partial class ProcessManagerWindow : Window
 {
     private readonly ProcessManagerService _service = new();
+    private readonly ActionLogService _log = new();
     private bool _loading;
 
     public ProcessManagerWindow()
@@ -99,11 +100,13 @@ public partial class ProcessManagerWindow : Window
                 await Task.Run(() => _service.ForceTerminate(entry.Id));
             }
 
+            _log.Write("Processos", "Encerrar processo", "Sucesso", $"{entry.Name} (PID {entry.Id})");
             StatusText.Text = $"Solicitação concluída para {entry.Name}. Atualizando lista…";
             await RefreshProcessesAsync();
         }
         catch (Exception ex)
         {
+            _log.Write("Processos", "Encerrar processo", "Falha", $"{entry.Name} (PID {entry.Id}): {ex.Message}");
             MessageBox.Show(
                 $"Não foi possível encerrar o processo.\n\n{ex.Message}",
                 "Encerramento não concluído",
