@@ -31,6 +31,12 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
+    private void OpenStorage_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new StorageManagerWindow { Owner = this };
+        window.ShowDialog();
+    }
+
     private async Task RefreshDiagnosticsAsync()
     {
         try
