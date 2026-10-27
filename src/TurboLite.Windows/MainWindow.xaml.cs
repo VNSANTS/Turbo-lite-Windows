@@ -38,6 +38,12 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
+    private void OpenPowerMode_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new PowerModeWindow { Owner = this };
+        window.ShowDialog();
+    }
+
     private void OpenCleanup_Click(object sender, RoutedEventArgs e)
     {
         var window = new CleanupWindow { Owner = this };
