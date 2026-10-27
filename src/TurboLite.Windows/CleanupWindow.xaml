@@ -43,7 +43,7 @@
         <DockPanel Grid.Row="4" Margin="0,12,0,0">
             <TextBlock Text="Arquivos em uso ou sem permissão serão ignorados. Pastas e links não são removidos."
                        TextWrapping="Wrap" Foreground="#9AAAC4" FontSize="11" VerticalAlignment="Center"/>
-            <Button x:Name="CleanButton" Content="Excluir arquivos listados" Click="Clean_Click"
+            <Button x:Name="CleanButton" Content="Excluir arquivos da prévia" Click="Clean_Click"
                     IsEnabled="False" Padding="16,10" Margin="14,0,0,0"
                     Background="#51351C" Foreground="#FFE0B2" BorderBrush="#805126"/>
         </DockPanel>
