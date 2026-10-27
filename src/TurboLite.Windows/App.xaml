@@ -49,11 +49,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ProgressBar">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="3" SnapsToDevicePixels="True">
-                            <Grid ClipToBounds="True">
-                                <Rectangle Fill="{TemplateBinding Background}"/>
-                                <Rectangle Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value}" HorizontalAlignment="Left" Fill="{TemplateBinding Foreground}" RadiusX="3" RadiusY="3"/>
-                            </Grid>
+                        <Border x:Name="PART_Track" Background="{TemplateBinding Background}" CornerRadius="3" SnapsToDevicePixels="True">
+                            <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="3" Width="0"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
