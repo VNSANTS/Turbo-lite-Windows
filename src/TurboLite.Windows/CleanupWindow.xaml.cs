@@ -6,6 +6,7 @@ namespace TurboLite.Windows;
 public partial class CleanupWindow : Window
 {
     private readonly TempCleanupService _service = new();
+    private readonly ActionLogService _log = new();
     private TempCleanupPreview? _preview;
     private bool _busy;
 
@@ -59,6 +60,7 @@ public partial class CleanupWindow : Window
         {
             var preview = _preview;
             var result = await Task.Run(() => _service.Clean(preview));
+            _log.Write("Limpeza", "Arquivos temporários", "Concluído", $"{result.DeletedCount} excluídos; {SystemDiagnosticsService.FormatBytes(result.FreedBytes)} liberados; {result.FailedCount} falhas");
             MessageBox.Show(
                 $"Arquivos excluídos: {result.DeletedCount}\nEspaço liberado: {SystemDiagnosticsService.FormatBytes(result.FreedBytes)}\nFalhas/arquivos em uso: {result.FailedCount}",
                 "Resultado da limpeza", MessageBoxButton.OK, MessageBoxImage.Information);
