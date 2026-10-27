@@ -19,6 +19,12 @@ public partial class MainWindow : Window
 
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshDiagnosticsAsync();
 
+    private void OpenProcesses_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new ProcessManagerWindow { Owner = this };
+        window.ShowDialog();
+    }
+
     private async Task RefreshDiagnosticsAsync()
     {
         try
