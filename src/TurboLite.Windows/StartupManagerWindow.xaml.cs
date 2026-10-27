@@ -6,6 +6,7 @@ namespace TurboLite.Windows;
 public partial class StartupManagerWindow : Window
 {
     private readonly StartupManagerService _service = new();
+    private readonly ActionLogService _log = new();
 
     public StartupManagerWindow()
     {
@@ -33,6 +34,7 @@ public partial class StartupManagerWindow : Window
         try
         {
             _service.DisableCurrentUserRunEntry(entry);
+            _log.Write("Inicialização", "Desativar entrada", "Sucesso", $"{entry.Name} | {entry.Command}");
             MessageBox.Show("Entrada desativada e backup salvo. Use 'Restaurar backups' para reativá-la.",
                 "Concluído", MessageBoxButton.OK, MessageBoxImage.Information);
             RefreshEntries();
@@ -63,6 +65,7 @@ public partial class StartupManagerWindow : Window
         try
         {
             int restored = _service.RestoreAllDisabledEntries();
+            _log.Write("Inicialização", "Restaurar backups", "Concluído", $"{restored} entrada(s) restaurada(s)");
             MessageBox.Show($"{restored} entrada(s) restaurada(s). Backups conflitantes foram preservados.",
                 "Restauração concluída", MessageBoxButton.OK, MessageBoxImage.Information);
             RefreshEntries();
