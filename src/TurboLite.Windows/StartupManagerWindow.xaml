@@ -29,7 +29,7 @@
             </StackPanel>
         </DockPanel>
         <DataGrid x:Name="StartupGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
-                  CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
+                  CanUserAddRows="False"
                   Background="#0E1526" Foreground="#E8F0FF" BorderBrush="#25334A"
                   GridLinesVisibility="Horizontal" HeadersVisibility="Column"
                   RowBackground="#0E1526" AlternatingRowBackground="#111D30"
