@@ -50,15 +50,6 @@
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
             <Setter Property="Background" Value="#26344B"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Border x:Name="PART_Track" Background="{TemplateBinding Background}" CornerRadius="3" SnapsToDevicePixels="True">
-                            <Border x:Name="PART_Indicator" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" CornerRadius="3" Width="0"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
         <Style TargetType="DataGrid">
             <Setter Property="Background" Value="#0E1526"/>
