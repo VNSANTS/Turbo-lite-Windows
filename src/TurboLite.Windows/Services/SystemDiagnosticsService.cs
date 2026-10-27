@@ -35,7 +35,7 @@ public sealed class SystemDiagnosticsService
         return (0, 0);
     }
 
-    public (string Name, double UsagePercent) GetSystemDrive()
+    public (string Name, double UsagePercent, long FreeBytes, long TotalBytes) GetSystemDrive()
     {
         try
         {
@@ -44,11 +44,11 @@ public sealed class SystemDiagnosticsService
             if (drive.IsReady)
             {
                 double used = drive.TotalSize == 0 ? 0 : (double)(drive.TotalSize - drive.AvailableFreeSpace) / drive.TotalSize * 100;
-                return ($"{drive.Name} ({FormatBytes(drive.TotalSize)})", used);
+                return ($"{drive.Name} ({FormatBytes(drive.TotalSize)})", used, drive.AvailableFreeSpace, drive.TotalSize);
             }
         }
         catch { }
-        return ("Disco indisponível", 0);
+        return ("Disco indisponível", 0, 0, 0);
     }
 
     public string GetOsName() => RuntimeInformation.OSDescription;
