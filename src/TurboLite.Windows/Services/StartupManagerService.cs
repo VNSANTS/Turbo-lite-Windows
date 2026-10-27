@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System.IO;
+using System.Text.Json;
 
 namespace TurboLite.Windows.Services;
 
@@ -17,6 +18,7 @@ public sealed class StartupManagerService
     private const string RunPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string RunOncePath = @"Software\Microsoft\Windows\CurrentVersion\RunOnce";
     private const string BackupPath = @"Software\TurboLiteWindows\StartupBackup";
+    private static readonly string StartupFileBackupPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TurboLiteWindows", "StartupFileBackup");
 
     private static readonly (RegistryHive Hive, string Path, string Label)[] RunLocations =
     {
@@ -94,7 +96,68 @@ public sealed class StartupManagerService
             }
         }
         catch { }
+        try
+        {
+            if (Directory.Exists(StartupFileBackupPath))
+            {
+                foreach (var folder in Directory.EnumerateDirectories(StartupFileBackupPath))
+                {
+                    try
+                    {
+                        var manifestPath = Path.Combine(folder, "backup.json");
+                        if (!File.Exists(manifestPath)) continue;
+                        var saved = JsonSerializer.Deserialize<StartupFileBackup>(File.ReadAllText(manifestPath));
+                        if (saved is not null)
+                            entries.Add(new StartupEntry(saved.Name, saved.OriginalPath, "Backup Turbo Lite • Pasta do usuário", "Atalho desativado (reversível)"));
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch { }
         return entries.OrderBy(e => e.Name, StringComparer.CurrentCultureIgnoreCase).ToArray();
+    }
+
+    public void DisableEntry(StartupEntry entry)
+    {
+        if (entry.Source == "Usuário atual • Run")
+        {
+            DisableCurrentUserRunEntry(entry);
+            return;
+        }
+
+        if (!entry.CanDisable || entry.Source != "Pasta do usuário" ||
+            !entry.Command.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Só é permitido desativar entradas Run compatíveis ou atalhos .lnk da pasta de inicialização do usuário atual.");
+
+        string startupRoot = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Startup))
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        string sourcePath = Path.GetFullPath(entry.Command);
+        if (!sourcePath.StartsWith(startupRoot, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(Path.GetDirectoryName(sourcePath)?.TrimEnd(Path.DirectorySeparatorChar), startupRoot.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("O atalho não está diretamente na pasta de inicialização do usuário atual.");
+
+        if (!File.Exists(sourcePath)) throw new FileNotFoundException("O atalho não foi encontrado. Atualize a lista.", sourcePath);
+        Directory.CreateDirectory(StartupFileBackupPath);
+        string backupFolder = Path.Combine(StartupFileBackupPath, Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(backupFolder);
+        try
+        {
+            File.Move(sourcePath, Path.Combine(backupFolder, Path.GetFileName(sourcePath)));
+            File.WriteAllText(Path.Combine(backupFolder, "backup.json"),
+                JsonSerializer.Serialize(new StartupFileBackup(Path.GetFileNameWithoutExtension(sourcePath), sourcePath)));
+        }
+        catch
+        {
+            try
+            {
+                string moved = Path.Combine(backupFolder, Path.GetFileName(sourcePath));
+                if (File.Exists(moved) && !File.Exists(sourcePath)) File.Move(moved, sourcePath);
+            }
+            catch { }
+            try { if (Directory.Exists(backupFolder)) Directory.Delete(backupFolder, recursive: true); } catch { }
+            throw;
+        }
     }
 
     public void DisableCurrentUserRunEntry(StartupEntry entry)
@@ -179,8 +242,40 @@ public sealed class StartupManagerService
             root.DeleteSubKeyTree(id, throwOnMissingSubKey: false);
             restored++;
         }
+        restored += RestoreStartupFolderShortcuts();
         return restored;
     }
+
+    private int RestoreStartupFolderShortcuts()
+    {
+        int restored = 0;
+        if (!Directory.Exists(StartupFileBackupPath)) return restored;
+        string startupRoot = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+        foreach (var folder in Directory.EnumerateDirectories(StartupFileBackupPath))
+        {
+            try
+            {
+                string manifestPath = Path.Combine(folder, "backup.json");
+                if (!File.Exists(manifestPath)) continue;
+                var saved = JsonSerializer.Deserialize<StartupFileBackup>(File.ReadAllText(manifestPath));
+                if (saved is null) continue;
+                string originalPath = Path.GetFullPath(saved.OriginalPath);
+                string expectedRoot = Path.GetFullPath(startupRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                if (!string.Equals(Path.GetDirectoryName(originalPath)?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), expectedRoot, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                string backupFile = Path.Combine(folder, Path.GetFileName(originalPath));
+                if (!File.Exists(backupFile) || File.Exists(originalPath)) continue;
+                File.Move(backupFile, originalPath);
+                File.Delete(manifestPath);
+                try { Directory.Delete(folder, recursive: false); } catch { }
+                restored++;
+            }
+            catch { }
+        }
+        return restored;
+    }
+
+    private sealed record StartupFileBackup(string Name, string OriginalPath);
 
     private static void AddStartupFolder(List<StartupEntry> entries, string folder, string source)
     {
@@ -192,11 +287,13 @@ public sealed class StartupManagerService
                 try
                 {
                     var info = new FileInfo(file);
+                    bool canDisable = source == "Pasta do usuário" && info.Extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase);
                     entries.Add(new StartupEntry(
                         Path.GetFileNameWithoutExtension(info.Name),
                         info.FullName,
                         source,
-                        info.Extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase) ? "Atalho" : "Arquivo"));
+                        info.Extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase) ? "Atalho" : "Arquivo",
+                        canDisable));
                 }
                 catch { }
             }
