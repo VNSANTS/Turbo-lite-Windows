@@ -37,6 +37,12 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
+    private void OpenCleanup_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new CleanupWindow { Owner = this };
+        window.ShowDialog();
+    }
+
     private async Task RefreshDiagnosticsAsync()
     {
         try
