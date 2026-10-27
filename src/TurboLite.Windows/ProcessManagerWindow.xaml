@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="0,0,0,18">
             <TextBlock Text="Gerenciador de processos" FontSize="27" FontWeight="Bold"/>
-            <TextBlock Text="Dados reais do Windows • nenhuma ação é executada automaticamente"
+            <TextBlock Text="Uso de CPU por amostragem de 0,5 s e memória • nenhuma ação é executada automaticamente"
                        Foreground="#9AAAC4" Margin="0,5,0,0"/>
         </StackPanel>
         <DockPanel Grid.Row="1" Margin="0,0,0,12">
@@ -37,6 +37,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Processo" Binding="{Binding Name}" Width="2*"/>
                 <DataGridTextColumn Header="PID" Binding="{Binding Id}" Width="85"/>
+                <DataGridTextColumn Header="CPU" Binding="{Binding CpuText}" Width="85"/>
                 <DataGridTextColumn Header="Memória" Binding="{Binding MemoryText}" Width="120"/>
                 <DataGridTextColumn Header="Proteção" Binding="{Binding ProtectionReason}" Width="2*"/>
             </DataGrid.Columns>
