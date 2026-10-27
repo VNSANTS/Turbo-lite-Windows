@@ -19,11 +19,16 @@
         <DockPanel Grid.Row="1" Margin="0,0,0,12">
             <TextBlock x:Name="CountText" Text="Lendo itens…" VerticalAlignment="Center"
                        Foreground="#9AAAC4" DockPanel.Dock="Left"/>
-            <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="16,8"
-                    HorizontalAlignment="Right" Background="#12384A"
-                    Foreground="#E8F0FF" BorderBrush="#23627A"/>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="Desativar selecionado" Click="Disable_Click" Padding="13,8" Margin="0,0,8,0"
+                        Background="#51351C" Foreground="#FFE0B2" BorderBrush="#805126"/>
+                <Button Content="Restaurar backups" Click="Restore_Click" Padding="13,8" Margin="0,0,8,0"
+                        Background="#173D32" Foreground="#C8FFE8" BorderBrush="#28634F"/>
+                <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="13,8"
+                        Background="#12384A" Foreground="#E8F0FF" BorderBrush="#23627A"/>
+            </StackPanel>
         </DockPanel>
-        <DataGrid x:Name="StartupGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True"
+        <DataGrid x:Name="StartupGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
                   CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
                   Background="#0E1526" Foreground="#E8F0FF" BorderBrush="#25334A"
                   GridLinesVisibility="Horizontal" HeadersVisibility="Column"
@@ -39,7 +44,7 @@
         <Border Grid.Row="3" Background="#17243A" CornerRadius="9" Padding="12" Margin="0,12,0,0">
             <StackPanel>
                 <TextBlock Text="Modo de inspeção" Foreground="#5DE0A5" FontWeight="Bold"/>
-                <TextBlock Text="Esta tela é somente leitura. Não desative itens desconhecidos: alguns são necessários para drivers, segurança ou sincronização. A próxima etapa é adicionar desativação reversível com cópia do estado original."
+                <TextBlock Text="Desativação limitada à chave Run do usuário atual: o Turbo Lite guarda nome, comando e tipo no Registro antes de remover a entrada. Restaurar não sobrescreve uma entrada que tenha sido recriada. Não desative itens desconhecidos; alguns são necessários para segurança ou sincronização."
                            Foreground="#C5D0E2" TextWrapping="Wrap" FontSize="11" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
