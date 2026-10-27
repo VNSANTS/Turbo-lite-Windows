@@ -2,14 +2,9 @@
 
 Aplicativo Windows para diagnóstico e otimização controlada de computadores modestos, com foco inicial em Windows 10 x64.
 
-## Objetivos
+## Direção do projeto
 
-- Dashboard de CPU, memória, armazenamento e sistema operacional.
-- Perfis de otimização explicáveis e reversíveis.
-- Limpeza seletiva de arquivos temporários.
-- Gerenciamento de inicialização e serviços com salvaguardas.
-- Debloat seletivo, sem remoção automática indiscriminada.
-- Registro das alterações e diagnóstico antes/depois.
+O escopo planejado inclui dashboard de hardware, perfis de otimização explicáveis e reversíveis, limpeza seletiva, gerenciamento de inicialização, registro das alterações e comparações de diagnóstico antes/depois. Esses itens são objetivos de evolução, não uma afirmação de que todos já estejam implementados. O estado atual está discriminado em **Módulos implementados** abaixo; gerenciamento de serviços e debloat seletivo ainda não são apresentados como recursos disponíveis.
 
 ## Stack inicial
 
