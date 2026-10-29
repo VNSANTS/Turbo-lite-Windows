@@ -25,6 +25,7 @@ public partial class ProcessManagerWindow : Window
         _loading = true;
         TerminateButton.IsEnabled = false;
         TrimRamButton.IsEnabled = false;
+        SelectAppsButton.IsEnabled = false;
         CountText.Text = "Atualizando lista…";
         StatusText.Text = "Coletando processos. Alguns podem desaparecer ou negar acesso durante a leitura.";
 
@@ -33,7 +34,7 @@ public partial class ProcessManagerWindow : Window
             var processes = await Task.Run(_service.GetProcesses);
             ProcessGrid.ItemsSource = processes;
             CountText.Text = $"{processes.Count} processos encontrados";
-            StatusText.Text = "Ordenado por memória utilizada. A proteção por nome é conservadora, mas não identifica todos os processos críticos.";
+            StatusText.Text = "Processos do Windows e processos críticos são protegidos. Use “Selecionar não-Windows” para marcar os elegíveis.";
         }
         catch (Exception ex)
         {
@@ -43,52 +44,81 @@ public partial class ProcessManagerWindow : Window
         finally
         {
             _loading = false;
+            SelectAppsButton.IsEnabled = true;
             UpdateTerminateButton();
         }
     }
 
     private void ProcessGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ProcessGrid.SelectedItem is ProcessEntry entry)
+        var selected = ProcessGrid.SelectedItems.Cast<ProcessEntry>().ToArray();
+        if (selected.Length == 0) StatusText.Text = "Selecione processos ou use “Selecionar não-Windows”.";
+        else
         {
-            StatusText.Text = entry.IsProtected
-                ? $"Protegido: {entry.Name} (PID {entry.Id}) — {entry.ProtectionReason}. CPU: {entry.CpuText}; RAM: {entry.MemoryText}."
-                : $"Selecionado: {entry.Name} (PID {entry.Id}) — CPU: {entry.CpuText}; RAM: {entry.MemoryText}. Primeiro será tentado o fechamento normal, se houver janela.";
+            int eligible = selected.Count(p => !p.IsProtected && p.Id > 4 && p.Id != Environment.ProcessId);
+            StatusText.Text = $"{selected.Length} selecionado(s); {eligible} elegível(is) para otimização de RAM. O ganho pode ser temporário.";
         }
+        UpdateTerminateButton();
+    }
+
+    private void SelectNonWindows_Click(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        ProcessGrid.SelectedItems.Clear();
+        foreach (var item in ProcessGrid.Items.OfType<ProcessEntry>())
+            if (!item.IsProtected && item.Id > 4 && item.Id != Environment.ProcessId)
+                ProcessGrid.SelectedItems.Add(item);
+        int count = ProcessGrid.SelectedItems.Count;
+        StatusText.Text = count == 0 ? "Nenhum processo elegível encontrado."
+            : $"{count} processos não protegidos selecionados. Clique em “Liberar RAM selecionados”.";
         UpdateTerminateButton();
     }
 
     private void UpdateTerminateButton()
     {
-        bool eligible = !_loading && ProcessGrid.SelectedItem is ProcessEntry entry && !entry.IsProtected && entry.Id > 4;
-        TerminateButton.IsEnabled = eligible;
-        TrimRamButton.IsEnabled = eligible;
+        var selected = ProcessGrid.SelectedItems.Cast<ProcessEntry>().ToArray();
+        bool oneEligible = !_loading && selected.Length == 1 &&
+            !selected[0].IsProtected && selected[0].Id > 4 && selected[0].Id != Environment.ProcessId;
+        bool anyEligible = !_loading && selected.Any(p =>
+            !p.IsProtected && p.Id > 4 && p.Id != Environment.ProcessId);
+        TerminateButton.IsEnabled = oneEligible;
+        TrimRamButton.IsEnabled = anyEligible;
     }
-
 
     private async void TrimRam_Click(object sender, RoutedEventArgs e)
     {
-        if (ProcessGrid.SelectedItem is not ProcessEntry entry || entry.IsProtected || entry.Id <= 4) return;
-
+        var targets = ProcessGrid.SelectedItems.Cast<ProcessEntry>()
+            .Where(p => !p.IsProtected && p.Id > 4 && p.Id != Environment.ProcessId).ToArray();
+        if (targets.Length == 0) return;
+        long totalBefore = targets.Sum(p => p.WorkingSetBytes);
         var result = MessageBox.Show(
-            $"Solicitar ao Windows a liberação de páginas do conjunto de trabalho de '{entry.Name}' (PID {entry.Id})?\n\n" +
-            $"Memória atual do processo: {entry.MemoryText}.\n\n" +
-            "O aplicativo continuará aberto. O Windows pode precisar carregar essas páginas novamente, causando lentidão temporária; não há garantia de ganho permanente de RAM. Salve seu trabalho antes de continuar.",
-            "Confirmar otimização de RAM", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-
+            $"Solicitar liberação de páginas de memória de {targets.Length} processo(s)?\\n\\n" +
+            $"Memória somada antes: {SystemDiagnosticsService.FormatBytes(totalBefore)}.\\n\\n" +
+            "Os aplicativos continuarão abertos. Processos protegidos são ignorados. O Windows pode carregar as páginas novamente; não há garantia de ganho permanente. Salve seu trabalho.",
+            "Confirmar otimização de RAM em lote", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
         if (result != MessageBoxResult.Yes) return;
-        try
+        TrimRamButton.IsEnabled = false;
+        int succeeded = 0;
+        var failures = new List<string>();
+        foreach (var entry in targets)
         {
-            await Task.Run(() => _ramOptimizer.TrimWorkingSet(entry.Id));
-            _log.Write("Memória RAM", "Solicitar redução do conjunto de trabalho", "Sucesso", $"{entry.Name} (PID {entry.Id}); memória antes: {entry.MemoryText}");
-            StatusText.Text = $"Solicitação enviada ao Windows para {entry.Name}. A redução pode ser temporária; atualizando lista…";
-            await RefreshProcessesAsync();
+            try
+            {
+                await Task.Run(() => _ramOptimizer.TrimWorkingSet(entry.Id));
+                succeeded++;
+                _log.Write("Memória RAM", "Reduzir conjunto de trabalho", "Solicitado", $"{entry.Name} (PID {entry.Id}); antes: {entry.MemoryText}");
+            }
+            catch (Exception ex)
+            {
+                failures.Add($"{entry.Name} (PID {entry.Id}): {ex.Message}");
+                _log.Write("Memória RAM", "Reduzir conjunto de trabalho", "Falha", $"{entry.Name} (PID {entry.Id}): {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            _log.Write("Memória RAM", "Solicitar redução do conjunto de trabalho", "Falha", $"{entry.Name} (PID {entry.Id}): {ex.Message}");
-            MessageBox.Show($"O Windows não permitiu otimizar este processo.\n\n{ex.Message}", "Otimização não concluída", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+        StatusText.Text = $"Otimização solicitada para {succeeded} de {targets.Length} processo(s). Atualizando lista…";
+        if (failures.Count > 0)
+            MessageBox.Show($"Concluído: {succeeded}; falhas: {failures.Count}.\\n\\n" +
+                string.Join("\\n", failures.Take(8)), "Resultado da otimização", MessageBoxButton.OK, MessageBoxImage.Information);
+        await RefreshProcessesAsync();
     }
 
     private async void Terminate_Click(object sender, RoutedEventArgs e)
