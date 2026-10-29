@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
 
 namespace TurboLite.Windows.Services;
 
@@ -51,12 +52,8 @@ public sealed class ProcessManagerService
                     int id = process.Id;
                     string name = process.ProcessName;
                     long memory = process.WorkingSet64;
-                    bool protectedProcess = id <= 4 || ProtectedNames.Contains(name);
-                    string reason = id <= 4
-                        ? "Processo do sistema"
-                        : ProtectedNames.Contains(name)
-                            ? "Processo crítico ou componente do Windows"
-                            : string.Empty;
+                    string reason = GetProtectionReason(process, id, name);
+                    bool protectedProcess = reason.Length > 0;
 
                     double cpuPercent = -1;
                     if (samples.TryGetValue(id, out var before))
@@ -116,7 +113,29 @@ public sealed class ProcessManagerService
             throw new InvalidOperationException("O aplicativo não pode encerrar a si próprio.");
 
         using var process = Process.GetProcessById(processId);
-        if (ProtectedNames.Contains(process.ProcessName))
-            throw new InvalidOperationException($"O encerramento de '{process.ProcessName}' está bloqueado por proteção.");
+        string reason = GetProtectionReason(process, processId, process.ProcessName);
+        if (!string.IsNullOrEmpty(reason))
+            throw new InvalidOperationException($"O encerramento de '{process.ProcessName}' está bloqueado: {reason}.");
+    }
+
+    private static string GetProtectionReason(Process process, int processId, string name)
+    {
+        if (processId <= 4) return "processo essencial do sistema";
+        if (processId == Environment.ProcessId) return "o próprio Turbo Lite";
+        if (ProtectedNames.Contains(name)) return "processo crítico ou componente do Windows";
+        try
+        {
+            string? executablePath = process.MainModule?.FileName;
+            if (string.IsNullOrWhiteSpace(executablePath)) return "caminho do executável não verificável";
+            string windowsPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Windows))
+                .TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            if (Path.GetFullPath(executablePath).StartsWith(windowsPath, StringComparison.OrdinalIgnoreCase))
+                return "executável localizado na pasta do Windows";
+        }
+        catch
+        {
+            return "não foi possível verificar o executável com segurança";
+        }
+        return string.Empty;
     }
 }
