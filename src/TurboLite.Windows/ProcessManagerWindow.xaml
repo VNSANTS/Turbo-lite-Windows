@@ -20,9 +20,11 @@
             <TextBlock x:Name="CountText" Text="Lendo processos…" VerticalAlignment="Center"
                        Foreground="#9AAAC4" DockPanel.Dock="Left"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="16,8" Margin="0,0,8,0"
+                <Button Content="↻ Atualizar" Click="Refresh_Click" Padding="12,8" Margin="0,0,8,0"
                         Background="#12384A" Foreground="#E8F0FF" BorderBrush="#23627A"/>
-                <Button x:Name="TrimRamButton" Content="Liberar RAM do selecionado" Click="TrimRam_Click"
+                <Button x:Name="SelectAppsButton" Content="Selecionar não-Windows" Click="SelectNonWindows_Click"
+                        Padding="12,8" Margin="0,0,8,0" Background="#24304A" Foreground="#E8F0FF" BorderBrush="#405779"/>
+                <Button x:Name="TrimRamButton" Content="Liberar RAM selecionados" Click="TrimRam_Click"
                         Padding="16,8" Margin="0,0,8,0" Background="#17463D" Foreground="#FFFFFF" BorderBrush="#267B68"
                         IsEnabled="False"/>
                 <Button x:Name="TerminateButton" Content="Encerrar selecionado" Click="Terminate_Click"
@@ -31,7 +33,7 @@
             </StackPanel>
         </DockPanel>
         <DataGrid x:Name="ProcessGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True"
-                  CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow"
+                  CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="FullRow"
                   SelectionChanged="ProcessGrid_SelectionChanged"
                   Background="#0E1526" Foreground="#E8F0FF" BorderBrush="#25334A"
                   GridLinesVisibility="Horizontal" HeadersVisibility="Column"
